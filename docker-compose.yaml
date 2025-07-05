@@ -2,49 +2,57 @@ version: "3.8"
 
 services:
   backend:
-    image: jackssads/comanda_back:1.0
+    build:
+      context: ./backend
+    ports:
+      - "${PORT_BACK}:${PORT_BACK}"
+    env_file:
+      - .env
     environment:
-      - PORT_BACK=3001
-      - URL_FRONT=https://example.com
-      - JWT_SECRET=developer
-      - JWT_SECRET_CLIENT=client
-      - NODE_ENV=production
-      - ACCESS_TOKEN_MERCADO_PAGO=
-      - CONNECTION_LIMIT=10
-      - HOST=mysql
-      - USER=root
-      - PASSWORD=123
-      - DATABASE=comanda_menu
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-
+      - PORT_BACK
+      - URL_FRONT
+      - JWT_SECRET
+      - JWT_SECRET_CLIENT
+      - NODE_ENV
+      - ACCESS_TOKEN_MERCADO_PAGO
+      - CONNECTION_LIMIT
+      - HOST
+      - USER
+      - PASSWORD
+      - DATABASE
+    depends_on:
+      - mysql
     networks:
       - network_public
-    ports:
-      - "3001:3001"
+      - internal
 
   frontend:
-    image: jackssads/comanda_front:1.0
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-    labels:
-      - traefik.enable=true"
-      - traefik.http.routers.frontend.rule=Host(https://example.com)
-      - traefik.http.routers.frontend.entrypoints=websecure
-      - traefik.http.routers.frontend.tls=true
-      - traefik.http.routers.frontend.tls.certresolver=letsencryptresolver
-      - traefik.http.services.frontend.loadbalancer.server.port=3000
-
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_BASE_URL_BACK: ${REACT_APP_BASE_URL_BACK}
+        REACT_APP_BASE_URL_FRONT: ${REACT_APP_BASE_URL_FRONT}
+    ports:
+      - "3000:3000"
     depends_on:
       - backend
     networks:
       - network_public
+
+  mysql:
+    image: mysql:8.0
+    container_name: comanda_mysql
     ports:
-      - "3000:3000"
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PASSWORD}
+      MYSQL_DATABASE: ${DATABASE}
+      MYSQL_USER: ${USER}
+      MYSQL_PASSWORD: ${PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - internal
 
 volumes:
   mysql_data:
@@ -53,3 +61,6 @@ networks:
   network_public:
     external: true
     name: network_public
+
+  internal:
+    driver: bridge
