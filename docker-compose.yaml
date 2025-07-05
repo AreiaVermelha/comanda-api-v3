@@ -1,13 +1,14 @@
-version: "3.8"
-
 services:
   backend:
     build:
       context: ./backend
+
     ports:
       - "${PORT_BACK}:${PORT_BACK}"
+
     env_file:
       - .env
+
     environment:
       - PORT_BACK
       - URL_FRONT
@@ -17,11 +18,24 @@ services:
       - ACCESS_TOKEN_MERCADO_PAGO
       - CONNECTION_LIMIT
       - HOST
-      - USER
-      - PASSWORD
-      - DATABASE
+      - USER=${DB_USER}
+      - PASSWORD=${DB_PASSWORD}
+      - DATABASE=${DB_DATABASE}
+      - TYPE
+      - PROJECT_ID
+      - PRIVATE_KEY_ID
+      - PRIVATE_KEY
+      - CLIENT_EMAIL
+      - CLIENT_ID
+      - AUTH_URI
+      - TOKEN_URI
+      - AUTH_PROVIDER_X509_CERT_URL
+      - CLIENT_X509_CERT_URL
+      - UNIVERSE_DOMAIN
+
     depends_on:
       - mysql
+      
     networks:
       - network_public
       - internal
@@ -29,13 +43,16 @@ services:
   frontend:
     build:
       context: ./frontend
+
       args:
         REACT_APP_BASE_URL_BACK: ${REACT_APP_BASE_URL_BACK}
         REACT_APP_BASE_URL_FRONT: ${REACT_APP_BASE_URL_FRONT}
     ports:
       - "3000:3000"
+
     depends_on:
       - backend
+
     networks:
       - network_public
 
@@ -43,14 +60,15 @@ services:
     image: mysql:8.0
     container_name: comanda_mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
+
     environment:
-      MYSQL_ROOT_PASSWORD: ${PASSWORD}
-      MYSQL_DATABASE: ${DATABASE}
-      MYSQL_USER: ${USER}
-      MYSQL_PASSWORD: ${PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+
     volumes:
       - mysql_data:/var/lib/mysql
+
     networks:
       - internal
 
