@@ -40,23 +40,38 @@ const Authentication = require("./src/resources/isAtuthenticaded");
 
 const isAuthenticated = async (req, res, next) => {
     const header = req.headers;
+    const clientIP = req.ip || req.connection.remoteAddress;
+    const userAgent = req.get('User-Agent');
+
+    logger.auth("Tentativa de autenticação", { 
+        clientIP, 
+        userAgent: userAgent ? userAgent.substring(0, 100) : 'Unknown',
+        isClient: !!header.is_client 
+    });
 
     if (header.is_client) {
         const authClient = await Authentication.authenticationClient(header);
 
         if (authClient.status) {
+            logger.auth("Cliente autenticado com sucesso", { clientIP });
             return next();
         };
     } else {
         const authCheck = await Authentication.authenticationUser(header);
 
-
         if (authCheck?.user_id) {
+            logger.auth("Usuário autenticado com sucesso", { 
+                user_id: authCheck.user_id, 
+                clientIP 
+            });
             return next();
         };
     };
 
-    logger.error("Acesso negado. Faça login.");
+    logger.security("Acesso negado - autenticação falhou", { 
+        clientIP, 
+        userAgent: userAgent ? userAgent.substring(0, 100) : 'Unknown' 
+    });
     res.status(401).send({ message: "Acesso negado. Faça login.", status: false });
 };
 

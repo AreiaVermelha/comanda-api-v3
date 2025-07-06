@@ -1,5 +1,6 @@
 require('dotenv').config();
 const admin = require("firebase-admin");
+const logger = require("../../logger");
 
 const credentials = {
     type: process.env.TYPE,
@@ -17,22 +18,44 @@ const credentials = {
 
 class NotificationService {
     constructor() {
+        logger.info("NotificationService: Initializing Firebase Admin");
         this.admin = admin.initializeApp({
             credential: admin.credential.cert(credentials),
         });
+        logger.info("NotificationService: Firebase Admin initialized successfully");
     };
 
     async notifyUser(payload_list = []) {
+        logger.info("NotificationService: Sending notifications", { 
+            payloadCount: payload_list.length,
+            hasPayloads: payload_list.length > 0 
+        });
+
         const promises = payload_list.map((payload) => {
             return admin.messaging().send(payload);
         });
 
         const result = await Promise.allSettled(promises);
 
+        let successCount = 0;
+        let failureCount = 0;
+
         result.forEach((result, i) => {
             if (result.status !== 'fulfilled') {
-                console.error(`Error [${i}]:`, result.reason);
+                failureCount++;
+                logger.error(`NotificationService: Error sending notification [${i}]`, { 
+                    error: result.reason,
+                    payloadIndex: i 
+                });
+            } else {
+                successCount++;
             };
+        });
+
+        logger.info("NotificationService: Notification sending completed", { 
+            total: payload_list.length,
+            success: successCount,
+            failures: failureCount 
         });
 
         return { message: 'Envio concluído', result };
