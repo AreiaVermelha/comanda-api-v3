@@ -45,8 +45,8 @@ router.post("/first_access", async (req, res) => {
         await UserService.service_query_insert_user(data);
         res.status(201).send({ message: "Primeiro usuário criado com sucesso", status: true });
     } catch (error) {
-        logger.error("Error on login:", error);
-        return res.status(500).send({ message: "Erro ao realizar primeiro acesso.", status: false });
+        logger.error("Error on first access:", error);
+        return res.status(500).send({ message: "Erro ao cadastrar primeiro usuário.", status: false });
     };
 });
 

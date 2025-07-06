@@ -3,19 +3,22 @@ const pool = require("../../db/conn");
 const create_table_cachier = () => {
     return new Promise((resolve, reject) => {
         const sql = `
-            CREATE TABLE IF NOT EXISTS comanda_menu.user (
-                user_id		INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                username	VARCHAR(100) NOT NULL,
-                email		VARCHAR(100) NOT NULL UNIQUE,
-                password	VARCHAR(150) NOT NULL,
-                func		VARCHAR(20) NOT NULL,
-                notify_id 	VARCHAR(255),
-                created_at	DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at	DATETIME ON UPDATE CURRENT_TIMESTAMP
+            CREATE TABLE IF NOT EXISTS comanda_menu.cashier (
+                cashier_id		INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                lenght_cheks 	INTEGER DEFAULT 0,
+                lenght_products INTEGER DEFAULT 0,
+                total_value		FLOAT DEFAULT 0,
+                pix				FLOAT DEFAULT 0,
+                debit			FLOAT DEFAULT 0,
+                credit			FLOAT DEFAULT 0,
+                cash			FLOAT DEFAULT 0,
+                status			BOOLEAN DEFAULT 1, -- Aberto
+                created_at		DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at		DATETIME ON UPDATE CURRENT_TIMESTAMP
             );
         `;
 
-        pool.query(sql, values, (err, result) => {
+        pool.query(sql, (err, result) => {
             if (err) {
 
                 reject(err);
@@ -39,7 +42,7 @@ const create_table_category = () => {
             );
         `;
 
-        pool.query(sql, values, (err, result) => {
+        pool.query(sql, (err, result) => {
             if (err) {
 
                 reject(err);
@@ -68,7 +71,7 @@ const create_table_product = () => {
             );
         `;
 
-        pool.query(sql, values, (err, result) => {
+        pool.query(sql, (err, result) => {
             if (err) {
 
                 reject(err);
@@ -83,7 +86,7 @@ const create_table_product = () => {
 const create_table_check = () => {
     return new Promise((resolve, reject) => {
         const sql = `
-            CREATE TABLE IF NOT EXISTS comanda_menu.check (
+            CREATE TABLE IF NOT EXISTS comanda_menu.\`check\` (
                 check_id					INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 name_client					VARCHAR(100) NOT NULL,
                 obs							VARCHAR(100) DEFAULT NULL,
@@ -99,7 +102,7 @@ const create_table_check = () => {
             );
         `;
 
-        pool.query(sql, values, (err, result) => {
+        pool.query(sql, (err, result) => {
             if (err) {
 
                 reject(err);
@@ -114,7 +117,7 @@ const create_table_check = () => {
 const create_table_order = () => {
     return new Promise((resolve, reject) => {
         const sql = `
-            CREATE TABLE IF NOT EXISTS comanda_menu.order (
+            CREATE TABLE IF NOT EXISTS comanda_menu.\`order\` (
                 order_id     				INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 check_id      				INTEGER NOT NULL,
                 product_id    				INTEGER NOT NULL,
@@ -123,12 +126,12 @@ const create_table_order = () => {
                 obs           				VARCHAR(100) DEFAULT NULL,
                 created_at					DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at					DATETIME ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (check_id) 		REFERENCES check (check_id) ON DELETE CASCADE,
+                FOREIGN KEY (check_id) 		REFERENCES \`check\` (check_id) ON DELETE CASCADE,
                 FOREIGN KEY (product_id) 	REFERENCES product (product_id) ON DELETE CASCADE
             );
         `;
 
-        pool.query(sql, values, (err, result) => {
+        pool.query(sql, (err, result) => {
             if (err) {
 
                 reject(err);
@@ -143,7 +146,7 @@ const create_table_order = () => {
 const create_table_setting = () => {
     return new Promise((resolve, reject) => {
         const sql = `
-            CREATE TABLE IF NOT EXISTS comanda_menu.setting (
+            CREATE TABLE IF NOT EXISTS comanda_menu.\`setting\` (
                 setting_id					INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 estabishment_name			VARCHAR(100),
                 serveice_change				BOOLEAN DEFAULT 0,
@@ -157,7 +160,7 @@ const create_table_setting = () => {
             );
         `;
 
-        pool.query(sql, values, (err, result) => {
+        pool.query(sql, (err, result) => {
             if (err) {
 
                 reject(err);
@@ -172,7 +175,7 @@ const create_table_setting = () => {
 const create_table_user = () => {
     return new Promise((resolve, reject) => {
         const sql = `
-            CREATE TABLE IF NOT EXISTS comanda_menu.user (
+            CREATE TABLE IF NOT EXISTS comanda_menu.\`user\` (
                 user_id		INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 username	VARCHAR(100) NOT NULL,
                 email		VARCHAR(100) NOT NULL UNIQUE,
@@ -184,7 +187,7 @@ const create_table_user = () => {
             );
         `;
 
-        pool.query(sql, values, (err, result) => {
+        pool.query(sql, (err, result) => {
             if (err) {
 
                 reject(err);
